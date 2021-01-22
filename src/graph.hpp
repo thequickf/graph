@@ -8,7 +8,7 @@ namespace graph {
 template<typename Node, typename... Types>
 class Graph {
 public:
-    virtual void addEdge(Edge <Node, Types...> edge) = 0;
+    virtual void addEdge(const Edge<Node, Types...>& edge) = 0;
 };
 
 }  // graph
