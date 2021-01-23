@@ -14,7 +14,7 @@ class Graph;
 
 template<
     typename Node,
-    template<typename...> typename GraphTraitList, typename...GraphTraits,
+    template<typename...> typename GraphTraitList, typename... GraphTraits,
     template<typename...> typename EdgeTraitList, typename... EdgeTraits>
 class Graph<
     Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...> > :
