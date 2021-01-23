@@ -53,6 +53,11 @@ using graph_trait_condition = std::is_base_of<graph::GraphTrait, Derived>;
 template<class Derived>
 using edge_trait_condition = std::is_base_of<graph::EdgeTrait, Derived>;
 
+template<typename T>
+concept Trait =
+    std::is_base_of_v<graph::GraphTrait, T> or
+    std::is_base_of_v<graph::EdgeTrait, T>;
+
 }  // graph_impl
 
 #endif  // IMPL_UTILS_HPP

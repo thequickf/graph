@@ -17,7 +17,7 @@ protected:
     EdgeTrait() = default;
 };
 
-// TODO: source and sink Node* type.
+// TODO: source and sink should be Node* type.
 // Should we inherit all nodes from base Node class
 // or should we apply more template woodoo?
 class Net : public GraphTrait {
@@ -32,10 +32,8 @@ public:
     uint32_t weight;
 };
 
-// TODO: Here I want to apply
-// requires ((std::is_base_of_v<graph::GraphTrait, Ts> || std::is_base_of_v<graph::EdgeTrait, Ts>) && ...)
-// but I wasn't able to make it work for now
 template<typename Node, typename... Traits>
+    requires (graph_impl::Trait<Traits> && ...)
 using Graph = graph_impl::Graph<
     Node,
     graph_impl::filter<graph_impl::graph_trait_condition, Traits...>,
