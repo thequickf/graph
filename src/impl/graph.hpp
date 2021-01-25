@@ -2,12 +2,21 @@
 #define IMPL_GRAPH_HPP
 
 #include <edge.hpp>
+#include <graph_traits.hpp>
 
 #include <map>
 #include <set>
 #include <utility>
 
 namespace graph_impl {
+
+template<typename Node>
+class Net : public graph::GraphTrait {
+public:
+    Net(Node source, Node sink) :
+        source(std::move(source)), sink(std::move(sink)) {}
+    Node source, sink;
+};
 
 template<typename Node, typename GraphTraitList, typename EdgeTraitList>
 class Graph;
