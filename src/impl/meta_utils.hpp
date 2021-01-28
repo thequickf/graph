@@ -17,6 +17,11 @@ namespace {
 template <typename...>
 struct list;
 
+template<typename Node>
+using abstract_trait_replacements = list<
+    list<graph::Net, graph_impl::Net<Node> >
+>;
+
 template <typename, typename> struct list_concat_impl;
 
 template <typename... LHTs, typename... RHTs>
@@ -47,35 +52,68 @@ struct filter_impl<Condition, Head, Tail...> {
 template <template <typename> class Condition, typename... Ts>
 using filter = typename filter_impl<Condition, Ts...>::type;
 
-template <typename, typename...>
-struct replace_abstract_traits_impl;
+template <typename, typename, typename...>
+struct replace_impl;
 
-template <typename Node>
-struct replace_abstract_traits_impl<Node> {
+template <typename SourceT, typename TargetT>
+struct replace_impl<SourceT, TargetT> {
     using type = list<>;
 };
 
-template <typename Node, typename Head, typename... Tail>
-struct replace_abstract_traits_impl<Node, Head, Tail...> {
+template <typename SourceT, typename TargetT, typename Head, typename... Tail>
+struct replace_impl<SourceT, TargetT, Head, Tail...> {
     using type = typename list_concat_impl<
                     std::conditional_t<
-                        std::is_same_v<Head, graph::Net>,
-                        list<graph_impl::Net<Node> >,
+                        std::is_same_v<Head, SourceT>,
+                        list<TargetT>,
                         list<Head>
                     >,
-                    typename replace_abstract_traits_impl<Node, Tail...>::type
+                    typename replace_impl<SourceT, TargetT, Tail...>::type
                  >::type;
 };
 
-template<typename Node, typename TraitList>
-struct replace_abstract_traits;
+template<typename, typename, typename>
+struct replace;
 
 template<
-    typename Node,
-    template<typename...> typename TraitList, typename... Traits>
-struct replace_abstract_traits<Node, TraitList<Traits...> > {
-    using type = replace_abstract_traits_impl<Node, Traits...>::type;
+    typename SourceT, typename TargetT,
+    template<typename...> typename List, typename... Ts>
+struct replace<SourceT, TargetT, List<Ts...> > {
+    using type = replace_impl<SourceT, TargetT, Ts...>::type;
 };
+
+template<typename SourceT, typename TargetT, typename List>
+using replace_t = replace<SourceT, TargetT, List>::type;
+
+template <typename, typename...>
+struct replace_all_impl;
+
+template <typename TraitList>
+struct replace_all_impl<TraitList> {
+    using type = TraitList;
+};
+
+template <
+    typename TraitList, 
+    template<typename...> typename List, typename SourceT, typename TargetT,
+    typename... Tail>
+struct replace_all_impl<TraitList, List<SourceT, TargetT>, Tail...> {
+    using type = replace_all_impl<replace_t<SourceT, TargetT, TraitList>, Tail...>::type;
+};
+
+template<typename, typename>
+struct replace_all;
+
+template<
+    typename TraitList,
+    template<typename...> typename ReplacementList, typename... Replacements>
+struct replace_all<TraitList, ReplacementList<Replacements...> > {
+    using type = replace_all_impl<TraitList, Replacements...>::type;
+};
+
+template<typename Node, typename TraitList>
+using replace_abstract_traits =
+    replace_all<TraitList, abstract_trait_replacements<Node> >::type;
 
 template<class Derived>
 using graph_trait_condition = std::is_base_of<graph::GraphTrait, Derived>;
@@ -90,12 +128,12 @@ namespace graph_impl {
 template<typename Node, typename... Traits>
 using build_graph_traits =
     replace_abstract_traits<
-        Node, filter<graph_trait_condition, Traits...> >::type;
+        Node, filter<graph_trait_condition, Traits...> >;
 
 template<typename Node, typename... Traits>
 using build_edge_traits =
     replace_abstract_traits<
-        Node, filter<edge_trait_condition, Traits...> >::type;
+        Node, filter<edge_trait_condition, Traits...> >;
 
 template<typename T>
 concept Trait =
