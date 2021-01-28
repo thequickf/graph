@@ -18,6 +18,12 @@ protected:
     Net() = default;
 };
 
+// TODO: filter away such classes from Graph constructor args
+class Directed : public GraphTrait {
+public:
+    Directed() = default;
+};
+
 class Weighted : public EdgeTrait {
 public:
     Weighted(unsigned weight) : weight(weight) {}
