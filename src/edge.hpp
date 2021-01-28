@@ -19,7 +19,7 @@ public:
 };
 
 template<typename Node, typename... Types>
-static Edge<Node, Types...> reversed(const Edge<Node, Types...>& edge) {
+Edge<Node, Types...> reversed(const Edge<Node, Types...>& edge) {
     return Edge<Node, Types...>(edge, edge.to, edge.from);
 }
 

@@ -19,7 +19,7 @@ protected:
 };
 
 class Directed : public GraphTrait {
-protected:
+public:
     Directed() = default;
 };
 
