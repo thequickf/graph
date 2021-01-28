@@ -18,6 +18,11 @@ protected:
     Net() = default;
 };
 
+class Directed : public GraphTrait {
+protected:
+    Directed() = default;
+};
+
 class Weighted : public EdgeTrait {
 public:
     Weighted(unsigned weight) : weight(weight) {}
