@@ -43,8 +43,8 @@ public:
     Graph(std::initializer_list<Node> node_list, ConstructibleGraphTraits... graph_traits) :
           nodes(std::move(node_list)), ConstructibleGraphTraits(std::move(graph_traits))... {
         if (std::is_base_of_v<Net<Node>, typeof(*this)>) {
-            nodes.insert(static_cast<Net<Node>*>(this)->source);
-            nodes.insert(static_cast<Net<Node>*>(this)->sink);
+            nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
+            nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
         }
     }
 
