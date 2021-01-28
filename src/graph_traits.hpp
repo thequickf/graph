@@ -13,13 +13,17 @@ protected:
     EdgeTrait() = default;
 };
 
+class NoConstructorTrait {
+protected:
+    NoConstructorTrait() = default;
+};
+
 class Net : public GraphTrait {
 protected:
     Net() = default;
 };
 
-// TODO: filter away such classes from Graph constructor args
-class Directed : public GraphTrait {
+class Directed : public GraphTrait, NoConstructorTrait {
 public:
     Directed() = default;
 };

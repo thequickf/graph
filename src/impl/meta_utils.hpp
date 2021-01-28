@@ -52,6 +52,18 @@ struct filter_impl<Condition, Head, Tail...> {
 template <template <typename> class Condition, typename... Ts>
 using filter = typename filter_impl<Condition, Ts...>::type;
 
+template<template <typename> class, typename>
+struct filter_list_impl;
+
+template<template <typename> class Condition,
+    template <typename...> typename List, typename... Ts>
+struct filter_list_impl<Condition, List<Ts...> > {
+    using type = filter<Condition, Ts...>;
+};
+
+template<template <typename> class Condition, typename List>
+using filter_list = filter_list_impl<Condition, List>::type;
+
 template <typename, typename, typename...>
 struct replace_impl;
 
@@ -121,6 +133,13 @@ using graph_trait_condition = std::is_base_of<graph::GraphTrait, Derived>;
 template<class Derived>
 using edge_trait_condition = std::is_base_of<graph::EdgeTrait, Derived>;
 
+template<class Derived>
+using constructible_trait_condition =
+    std::conditional_t<
+        std::is_base_of_v<graph::NoConstructorTrait, Derived>,
+        std::false_type,
+        std::true_type>;
+
 }  // namespace
 
 namespace graph_impl {
@@ -134,6 +153,16 @@ template<typename Node, typename... Traits>
 using build_edge_traits =
     replace_abstract_traits<
         Node, filter<edge_trait_condition, Traits...> >;
+
+template<typename Node, typename... Traits>
+using constructible_graph_traits =
+    filter_list<constructible_trait_condition,
+        build_graph_traits<Node, Traits...> >;
+
+template<typename Node, typename... Traits>
+using constructible_edge_traits =
+    filter_list<constructible_trait_condition,
+        build_edge_traits<Node, Traits...> >;
 
 template<typename T>
 concept Trait =
