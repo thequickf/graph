@@ -30,8 +30,7 @@ class Graph<
     public GraphTraits... {
 public:
     Graph() = default;
-    Graph(std::initializer_list<Node> node_list,
-          GraphTraits... graph_traits) :
+    Graph(std::initializer_list<Node> node_list, GraphTraits... graph_traits) :
           nodes(std::move(node_list)), GraphTraits(std::move(graph_traits))... {
         if (std::is_base_of<Net<Node>, typeof(*this)>::value) {
             nodes.insert(static_cast<Net<Node>*>(this)->source);
