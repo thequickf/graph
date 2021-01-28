@@ -53,7 +53,7 @@ public:
         }
     }
 
-    std::vector<Edge> inEdges(Node node) {
+    std::vector<Edge> inEdges(const Node& node) {
         std::vector<Edge> res;
         for (const Edge& edge : edges[node])
             if (edge.to == node)
@@ -61,7 +61,7 @@ public:
         return res;
     }
 
-    std::vector<Edge> outEdges(Node node) {
+    std::vector<Edge> outEdges(const Node& node) {
         std::vector<Edge > res;
         for (const Edge& edge : edges[node])
             if (edge.from == node)
@@ -69,7 +69,7 @@ public:
         return res;
     }
 
-    std::vector<Node> neighbors(Node node) {
+    std::vector<Node> neighbors(const Node& node) {
         std::vector<Node> res;
         for (const Edge& edge : outEdges(node))
             res.push_back(edge.to);
