@@ -2,15 +2,9 @@
 #define IMPL_META_UTILS_HPP
 
 #include <graph_traits.hpp>
+#include <impl/graph_traits.hpp>
 
 #include <type_traits>
-
-namespace graph_impl {
-
-template<typename Node>
-class Net;
-
-}  // graph_impl
 
 namespace {
 
@@ -26,7 +20,7 @@ template <typename, typename> struct list_concat_impl;
 
 template <typename... LHTs, typename... RHTs>
 struct list_concat_impl<list<LHTs...>, list<RHTs...>> {
-    using type = list<LHTs..., RHTs...>;
+  using type = list<LHTs..., RHTs...>;
 };
 
 template <template <typename> class, typename...>
@@ -34,19 +28,19 @@ struct filter_impl;
 
 template <template <typename> class Condition>
 struct filter_impl<Condition> {
-    using type = list<>;
+  using type = list<>;
 };
 
 template <template <typename> class Condition, typename Head, typename... Tail>
 struct filter_impl<Condition, Head, Tail...> {
-    using type = typename list_concat_impl<
-                    std::conditional_t<
-                        Condition<Head>::value,
-                        list<Head>,
-                        list<>
-                    >,
-                    typename filter_impl<Condition, Tail...>::type
-                 >::type;
+  using type = typename list_concat_impl<
+          std::conditional_t<
+              Condition<Head>::value,
+              list<Head>,
+              list<>
+          >,
+          typename filter_impl<Condition, Tail...>::type
+      >::type;
 };
 
 template <template <typename> class Condition, typename... Ts>
@@ -58,7 +52,7 @@ struct filter_list_impl;
 template<template <typename> class Condition,
     template <typename...> typename List, typename... Ts>
 struct filter_list_impl<Condition, List<Ts...> > {
-    using type = filter<Condition, Ts...>;
+  using type = filter<Condition, Ts...>;
 };
 
 template<template <typename> class Condition, typename List>
@@ -69,19 +63,19 @@ struct replace_impl;
 
 template <typename SourceT, typename TargetT>
 struct replace_impl<SourceT, TargetT> {
-    using type = list<>;
+  using type = list<>;
 };
 
 template <typename SourceT, typename TargetT, typename Head, typename... Tail>
 struct replace_impl<SourceT, TargetT, Head, Tail...> {
-    using type = typename list_concat_impl<
-                    std::conditional_t<
-                        std::is_same_v<Head, SourceT>,
-                        list<TargetT>,
-                        list<Head>
-                    >,
-                    typename replace_impl<SourceT, TargetT, Tail...>::type
-                 >::type;
+  using type = typename list_concat_impl<
+          std::conditional_t<
+              std::is_same_v<Head, SourceT>,
+              list<TargetT>,
+              list<Head>
+          >,
+          typename replace_impl<SourceT, TargetT, Tail...>::type
+      >::type;
 };
 
 template<typename, typename, typename>
@@ -91,7 +85,7 @@ template<
     typename SourceT, typename TargetT,
     template<typename...> typename List, typename... Ts>
 struct replace<SourceT, TargetT, List<Ts...> > {
-    using type = replace_impl<SourceT, TargetT, Ts...>::type;
+  using type = replace_impl<SourceT, TargetT, Ts...>::type;
 };
 
 template<typename SourceT, typename TargetT, typename List>
@@ -102,7 +96,7 @@ struct replace_all_impl;
 
 template <typename TraitList>
 struct replace_all_impl<TraitList> {
-    using type = TraitList;
+  using type = TraitList;
 };
 
 template <
@@ -110,7 +104,7 @@ template <
     template<typename...> typename List, typename SourceT, typename TargetT,
     typename... Tail>
 struct replace_all_impl<TraitList, List<SourceT, TargetT>, Tail...> {
-    using type = replace_all_impl<replace_t<SourceT, TargetT, TraitList>, Tail...>::type;
+  using type = replace_all_impl<replace_t<SourceT, TargetT, TraitList>, Tail...>::type;
 };
 
 template<typename, typename>
@@ -120,7 +114,7 @@ template<
     typename TraitList,
     template<typename...> typename ReplacementList, typename... Replacements>
 struct replace_all<TraitList, ReplacementList<Replacements...> > {
-    using type = replace_all_impl<TraitList, Replacements...>::type;
+  using type = replace_all_impl<TraitList, Replacements...>::type;
 };
 
 template<typename Node, typename TraitList>

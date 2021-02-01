@@ -5,33 +5,33 @@ namespace graph {
 
 class GraphTrait {
 protected:
-    GraphTrait() = default;
+  GraphTrait() = default;
 };
 
 class EdgeTrait {
 protected:
-    EdgeTrait() = default;
+  EdgeTrait() = default;
 };
 
 class NoConstructorTrait {
 protected:
-    NoConstructorTrait() = default;
+  NoConstructorTrait() = default;
 };
 
 class Net : public GraphTrait {
 protected:
-    Net() = default;
+  Net() = default;
 };
 
 class Directed : public GraphTrait, NoConstructorTrait {
 public:
-    Directed() = default;
+  Directed() = default;
 };
 
 class Weighted : public EdgeTrait {
 public:
-    Weighted(unsigned weight) : weight(weight) {}
-    const unsigned weight;
+  Weighted(unsigned weight) : weight(weight) {}
+  const unsigned weight;
 };
 
 }  // graph

@@ -3,6 +3,7 @@
 
 #include <edge.hpp>
 #include <graph_traits.hpp>
+#include <impl/graph_traits.hpp>
 
 #include <map>
 #include <set>
@@ -10,14 +11,6 @@
 #include <vector>
 
 namespace graph_impl {
-
-template<typename Node>
-class Net : public graph::GraphTrait {
-public:
-    Net(Node source, Node sink) :
-        source(std::move(source)), sink(std::move(sink)) {}
-    const Node source, sink;
-};
 
 template<typename Node, typename GraphTraitList, typename EdgeTraitList,
     typename ConstructibleGraphTraitList, typename ConstructibleEdgeTraitList>
@@ -32,59 +25,61 @@ template<
     template<typename...> typename ConstructibleEdgeTraitList,
         typename... ConstructibleEdgeTraits>
 class Graph<
-    Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...>,
-    ConstructibleGraphTraitList<ConstructibleGraphTraits...>,
-    ConstructibleEdgeTraitList<ConstructibleEdgeTraits...> > :
+      Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...>,
+      ConstructibleGraphTraitList<ConstructibleGraphTraits...>,
+      ConstructibleEdgeTraitList<ConstructibleEdgeTraits...> > :
     public GraphTraits... {
-    using Edge = graph::Edge<Node, ConstructibleEdgeTraits...>;
+  using Edge = graph::Edge<Node, ConstructibleEdgeTraits...>;
 
 public:
-    Graph() = default;
-    Graph(std::initializer_list<Node> node_list, ConstructibleGraphTraits... graph_traits) :
-          nodes(std::move(node_list)), ConstructibleGraphTraits(std::move(graph_traits))... {
-        if (std::is_base_of_v<Net<Node>, typeof(*this)>) {
-            nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
-            nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
-        }
+  Graph() = default;
+  Graph(std::initializer_list<Node> node_list,
+        ConstructibleGraphTraits... graph_traits) :
+      nodes(std::move(node_list)),
+      ConstructibleGraphTraits(std::move(graph_traits))... {
+    if (std::is_base_of_v<Net<Node>, typeof(*this)>) {
+      nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
+      nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
     }
+  }
 
-    void addEdge(const Edge& edge) {
-        nodes.insert(edge.from);
-        nodes.insert(edge.to);
-        edges[edge.from].insert(edge);
-        edges[edge.to].insert(edge);
-        if (!std::is_base_of_v<graph::Directed, typeof(*this)>) {
-            edges[edge.from].insert(graph::reversed(edge));
-            edges[edge.to].insert(graph::reversed(edge));
-        }
+  void addEdge(const Edge& edge) {
+    nodes.insert(edge.from);
+    nodes.insert(edge.to);
+    edges[edge.from].insert(edge);
+    edges[edge.to].insert(edge);
+    if (!std::is_base_of_v<graph::Directed, typeof(*this)>) {
+      edges[edge.from].insert(graph::reversed(edge));
+      edges[edge.to].insert(graph::reversed(edge));
     }
+  }
 
-    std::vector<Edge> inEdges(const Node& node) {
-        std::vector<Edge> res;
-        for (const Edge& edge : edges[node])
-            if (edge.to == node)
-                res.push_back(edge);
-        return res;
-    }
+  std::vector<Edge> inEdges(const Node& node) {
+    std::vector<Edge> res;
+    for (const Edge& edge : edges[node])
+      if (edge.to == node)
+        res.push_back(edge);
+    return res;
+  }
 
-    std::vector<Edge> outEdges(const Node& node) {
-        std::vector<Edge > res;
-        for (const Edge& edge : edges[node])
-            if (edge.from == node)
-                res.push_back(edge);
-        return res;
-    }
+  std::vector<Edge> outEdges(const Node& node) {
+    std::vector<Edge > res;
+    for (const Edge& edge : edges[node])
+      if (edge.from == node)
+        res.push_back(edge);
+    return res;
+  }
 
-    std::vector<Node> neighbors(const Node& node) {
-        std::vector<Node> res;
-        for (const Edge& edge : outEdges(node))
-            res.push_back(edge.to);
-        return res;
-    }
+  std::vector<Node> neighbors(const Node& node) {
+    std::vector<Node> res;
+    for (const Edge& edge : outEdges(node))
+      res.push_back(edge.to);
+    return res;
+  }
 
 private:
-    std::map<Node, std::set<Edge> > edges;
-    std::set<Node> nodes;
+  std::map<Node, std::set<Edge> > edges;
+  std::set<Node> nodes;
 };
 
 }  // graph_impl
