@@ -19,25 +19,32 @@ public:
     const Node source, sink;
 };
 
-template<typename Node, typename GraphTraitList, typename EdgeTraitList>
+template<typename Node, typename GraphTraitList, typename EdgeTraitList,
+    typename ConstructibleGraphTraitList, typename ConstructibleEdgeTraitList>
 class Graph;
 
 template<
     typename Node,
     template<typename...> typename GraphTraitList, typename... GraphTraits,
-    template<typename...> typename EdgeTraitList, typename... EdgeTraits>
+    template<typename...> typename EdgeTraitList, typename... EdgeTraits,
+    template<typename...> typename ConstructibleGraphTraitList,
+        typename... ConstructibleGraphTraits,
+    template<typename...> typename ConstructibleEdgeTraitList,
+        typename... ConstructibleEdgeTraits>
 class Graph<
-    Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...> > :
+    Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...>,
+    ConstructibleGraphTraitList<ConstructibleGraphTraits...>,
+    ConstructibleEdgeTraitList<ConstructibleEdgeTraits...> > :
     public GraphTraits... {
-    using Edge = graph::Edge<Node, EdgeTraits...>;
+    using Edge = graph::Edge<Node, ConstructibleEdgeTraits...>;
 
 public:
     Graph() = default;
-    Graph(std::initializer_list<Node> node_list, GraphTraits... graph_traits) :
-          nodes(std::move(node_list)), GraphTraits(std::move(graph_traits))... {
+    Graph(std::initializer_list<Node> node_list, ConstructibleGraphTraits... graph_traits) :
+          nodes(std::move(node_list)), ConstructibleGraphTraits(std::move(graph_traits))... {
         if (std::is_base_of_v<Net<Node>, typeof(*this)>) {
-            nodes.insert(static_cast<Net<Node>*>(this)->source);
-            nodes.insert(static_cast<Net<Node>*>(this)->sink);
+            nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
+            nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
         }
     }
 
