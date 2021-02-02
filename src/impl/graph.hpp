@@ -4,6 +4,7 @@
 #include <edge.hpp>
 #include <graph_traits.hpp>
 #include <impl/graph_traits.hpp>
+#include <impl/meta_utils.hpp>
 
 #include <map>
 #include <set>
@@ -37,7 +38,7 @@ public:
         ConstructibleGraphTraits... graph_traits) :
       nodes(std::move(node_list)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
-    if (std::is_base_of_v<Net<Node>, typeof(*this)>) {
+    if (contains_type<Net<Node>, GraphTraits...>::value) {
       nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
       nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
     }
@@ -48,7 +49,7 @@ public:
     nodes.insert(edge.to);
     edges[edge.from].insert(edge);
     edges[edge.to].insert(edge);
-    if (!std::is_base_of_v<graph::Directed, typeof(*this)>) {
+    if (!contains_type<graph::Directed, GraphTraits...>::value) {
       edges[edge.from].insert(graph::reversed(edge));
       edges[edge.to].insert(graph::reversed(edge));
     }

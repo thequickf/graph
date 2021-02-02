@@ -104,7 +104,8 @@ template <
     template<typename...> typename List, typename SourceT, typename TargetT,
     typename... Tail>
 struct replace_all_impl<TraitList, List<SourceT, TargetT>, Tail...> {
-  using type = replace_all_impl<replace_t<SourceT, TargetT, TraitList>, Tail...>::type;
+  using type =
+      replace_all_impl<replace_t<SourceT, TargetT, TraitList>, Tail...>::type;
 };
 
 template<typename, typename>
@@ -115,6 +116,20 @@ template<
     template<typename...> typename ReplacementList, typename... Replacements>
 struct replace_all<TraitList, ReplacementList<Replacements...> > {
   using type = replace_all_impl<TraitList, Replacements...>::type;
+};
+
+template<typename, typename, typename...>
+struct contains_type_impl;
+
+template<typename Result,  typename T>
+struct contains_type_impl<Result, T> {
+  using value = Result;
+};
+
+template<typename Result,  typename T, typename Head, typename... Tail>
+struct contains_type_impl<Result,  T, Head, Tail...> {
+  using value = contains_type_impl<
+      std::disjunction<Result, std::is_same<T, Head> >, T, Tail...>::value;
 };
 
 template<typename Node, typename TraitList>
@@ -137,6 +152,9 @@ using constructible_trait_condition =
 }  // namespace
 
 namespace graph_impl {
+
+template<typename T, typename... Ts>
+using contains_type = contains_type_impl<std::false_type, T, Ts...>::value;
 
 template<typename Node, typename... Traits>
 using build_graph_traits =
