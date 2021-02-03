@@ -28,17 +28,16 @@ Edge<Node, Types...> reversed(const Edge<Node, Types...>& edge) {
 }
 
 template<typename Node, typename... Types>
-bool operator<(const Edge<Node, graph_impl::RBTreeBasedEdge, Types...>& lhe,
-               const Edge<Node, graph_impl::RBTreeBasedEdge, Types...>& rhe) {
+bool operator<(const Edge<Node, Types...>& lhe,
+               const Edge<Node, Types...>& rhe) {
   if (lhe.from < rhe.from || rhe.from < lhe.from)
     return lhe.from < rhe.from;
   return lhe.to < rhe.to;
 }
 
 template<typename Node, typename... Types>
-bool operator==(
-      const Edge<Node, graph_impl::HashTableBasedEdge, Types...>& lhe,
-      const Edge<Node, graph_impl::HashTableBasedEdge, Types...>& rhe) {
+bool operator==(const Edge<Node, Types...>& lhe,
+                const Edge<Node, Types...>& rhe) {
   return lhe.from == rhe.from && lhe.to == rhe.to;
 }
 
@@ -47,10 +46,9 @@ bool operator==(
 namespace std {
 
 template<typename Node, typename... Types>
-struct hash<graph::Edge<Node, graph_impl::HashTableBasedEdge, Types...> > {
+struct hash<graph::Edge<Node, Types...> > {
   std::size_t operator()(
-      const graph::Edge<Node, graph_impl::HashTableBasedEdge, Types...>& edge
-  ) const noexcept {
+      const graph::Edge<Node, Types...>& edge) const noexcept {
     const std::size_t h1 = std::hash<Node>{}(edge.from);
     const std::size_t h2 = std::hash<Node>{}(edge.to);
     return h1 ^ (h2 << 1 | (h2 >> (CHAR_BIT * sizeof(h2) - 1)));

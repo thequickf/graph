@@ -28,28 +28,24 @@ template<
         typename... ConstructibleGraphTraits,
     template<typename...> typename ConstructibleEdgeTraitList,
         typename... ConstructibleEdgeTraits>
+  requires(BaseConsistent<Node, GraphTraits...>)
 class Graph<
       Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...>,
       ConstructibleGraphTraitList<ConstructibleGraphTraits...>,
       ConstructibleEdgeTraitList<ConstructibleEdgeTraits...> > :
     public GraphTraits... {
   using Edge = graph::Edge<Node, EdgeTraits...>;
-  using ContainerEdge = std::conditional_t<
-      contains_type_v<graph::HashTableBased, GraphTraits...>,
-      graph::Edge<Node, graph_impl::HashTableBasedEdge, EdgeTraits...>,
-      graph::Edge<Node, graph_impl::RBTreeBasedEdge, EdgeTraits...>
-  >;
   using EdgeSet = std::conditional_t<
       contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::conditional_t<
           contains_type_v<graph::Multigraph, GraphTraits...>,
-          std::unordered_multiset<ContainerEdge>,
-          std::unordered_set<ContainerEdge>
+          std::unordered_multiset<Edge>,
+          std::unordered_set<Edge>
       >,
       std::conditional_t<
           contains_type_v<graph::Multigraph, GraphTraits...>,
-          std::multiset<ContainerEdge>,
-          std::set<ContainerEdge>
+          std::multiset<Edge>,
+          std::set<Edge>
       >
   >;
   using EdgeMap = std::conditional_t<
@@ -76,33 +72,31 @@ public:
   }
 
   void addEdge(const Edge& edge) {
-    const ContainerEdge& container_edge =
-        reinterpret_cast<const ContainerEdge&>(edge);
-    nodes.insert(container_edge.from);
-    nodes.insert(container_edge.to);
-    edges[container_edge.from].insert(container_edge);
-    edges[container_edge.to].insert(container_edge);
+    nodes.insert(edge.from);
+    nodes.insert(edge.to);
+    edges[edge.from].insert(edge);
+    edges[edge.to].insert(edge);
     if (!contains_type_v<graph::Directed, GraphTraits...>) {
-      edges[container_edge.from].insert(graph::reversed(container_edge));
-      edges[container_edge.to].insert(graph::reversed(container_edge));
+      edges[edge.from].insert(graph::reversed(edge));
+      edges[edge.to].insert(graph::reversed(edge));
     }
   }
 
   std::vector<Edge> inEdges(const Node& node) {
     nodes.insert(node);
     std::vector<Edge> res;
-    for (const ContainerEdge& edge : edges[node])
+    for (const Edge& edge : edges[node])
       if (edge.to == node)
-        res.push_back(reinterpret_cast<const Edge&>(edge));
+        res.push_back(edge);
     return res;
   }
 
   std::vector<Edge> outEdges(const Node& node) {
     nodes.insert(node);
     std::vector<Edge> res;
-    for (const ContainerEdge& edge : edges[node])
+    for (const Edge& edge : edges[node])
       if (edge.from == node)
-        res.push_back(reinterpret_cast<const Edge&>(edge));
+        res.push_back(edge);
     return res;
   }
 

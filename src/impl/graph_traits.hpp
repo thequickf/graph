@@ -15,16 +15,6 @@ public:
   const Node source, sink;
 };
 
-class RBTreeBasedEdge : public graph::EdgeTrait, graph::NoConstructorTrait {
-protected:
-  RBTreeBasedEdge() = default;
-};
-
-class HashTableBasedEdge : public graph::EdgeTrait, graph::NoConstructorTrait {
-protected:
-  HashTableBasedEdge() = default;
-};
-
 }  // graph_impl
 
 #endif  // IMPL_GRAPH_TRAITS_HPP
