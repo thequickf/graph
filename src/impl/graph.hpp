@@ -75,7 +75,7 @@ public:
   }
 
   void addEdge(const Edge& edge) {
-    const ContainerEdge container_edge =
+    const ContainerEdge& container_edge =
         reinterpret_cast<const ContainerEdge&>(edge);
     nodes.insert(container_edge.from);
     nodes.insert(container_edge.to);
