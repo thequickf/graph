@@ -156,6 +156,9 @@ namespace graph_impl {
 template<typename T, typename... Ts>
 using contains_type = contains_type_impl<std::false_type, T, Ts...>::value;
 
+template <typename T, typename... Ts>
+inline constexpr bool contains_type_v = contains_type<T, Ts...>::value;
+
 template<typename Node, typename... Traits>
 using build_graph_traits =
     replace_abstract_traits<
