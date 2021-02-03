@@ -4,6 +4,7 @@
 #include <graph_traits.hpp>
 #include <impl/graph_traits.hpp>
 
+#include <concepts>
 #include <type_traits>
 
 namespace {
@@ -156,6 +157,9 @@ namespace graph_impl {
 template<typename T, typename... Ts>
 using contains_type = contains_type_impl<std::false_type, T, Ts...>::value;
 
+template <typename T, typename... Ts>
+inline constexpr bool contains_type_v = contains_type<T, Ts...>::value;
+
 template<typename Node, typename... Traits>
 using build_graph_traits =
     replace_abstract_traits<
@@ -178,8 +182,34 @@ using constructible_edge_traits =
 
 template<typename T>
 concept Trait =
-    std::is_base_of_v<graph::GraphTrait, T> or
+    std::is_base_of_v<graph::GraphTrait, T> ||
     std::is_base_of_v<graph::EdgeTrait, T>;
+
+template<typename T>
+concept Hashable = requires(T a, T b) {
+  { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
+  { a == b } -> std::convertible_to<bool>;
+};
+
+template<typename T>
+concept Comparable =
+    requires(const std::remove_reference_t<T>& a,
+             const std::remove_reference_t<T>& b) {
+  { a < b } -> std::convertible_to<bool>;
+};
+
+template<typename Node, typename... GraphTraits>
+concept HashBaseConsistent =
+    Hashable<Node> && contains_type_v<graph::HashTableBased, GraphTraits...>;
+
+template<typename Node, typename... GraphTraits>
+concept RBTreeBaseConsistent =
+    Comparable<Node> && !contains_type_v<graph::HashTableBased, GraphTraits...>;
+
+template<typename Node, typename... GraphTraits>
+concept BaseConsistent =
+    HashBaseConsistent<Node, GraphTraits...> ||
+    RBTreeBaseConsistent<Node, GraphTraits...>;
 
 }  // graph_impl
 

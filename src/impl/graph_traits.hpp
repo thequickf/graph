@@ -1,6 +1,10 @@
 #ifndef IMPL_GRAPH_TRAITS_HPP
 #define IMPL_GRAPH_TRAITS_HPP
 
+#include <graph_traits.hpp>
+
+#include <utility>
+
 namespace graph_impl {
 
 template<typename Node>

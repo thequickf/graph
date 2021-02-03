@@ -24,8 +24,18 @@ protected:
 };
 
 class Directed : public GraphTrait, NoConstructorTrait {
-public:
+protected:
   Directed() = default;
+};
+
+class Multigraph : public GraphTrait, NoConstructorTrait {
+protected:
+  Multigraph() = default;
+};
+
+class HashTableBased : public GraphTrait, NoConstructorTrait {
+protected:
+  HashTableBased() = default;
 };
 
 class Weighted : public EdgeTrait {
