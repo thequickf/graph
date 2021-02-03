@@ -89,6 +89,7 @@ public:
   }
 
   std::vector<Edge> inEdges(const Node& node) {
+    nodes.insert(node);
     std::vector<Edge> res;
     for (const ContainerEdge& edge : edges[node])
       if (edge.to == node)
@@ -97,6 +98,7 @@ public:
   }
 
   std::vector<Edge> outEdges(const Node& node) {
+    nodes.insert(node);
     std::vector<Edge> res;
     for (const ContainerEdge& edge : edges[node])
       if (edge.from == node)
@@ -105,6 +107,7 @@ public:
   }
 
   std::vector<Node> neighbors(const Node& node) {
+    nodes.insert(node);
     NodeSet res_set;
     for (const Edge& edge : outEdges(node))
       res_set.insert(edge.to);
