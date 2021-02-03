@@ -37,7 +37,8 @@ class Graph<
   using ContainerEdge = std::conditional_t<
       contains_type_v<graph::HashTableBased, GraphTraits...>,
       graph::Edge<Node, graph_impl::HashTableBasedEdge, EdgeTraits...>,
-      graph::Edge<Node, graph_impl::RBTreeBasedEdge, EdgeTraits...> >;
+      graph::Edge<Node, graph_impl::RBTreeBasedEdge, EdgeTraits...>
+  >;
   using EdgeSet = std::conditional_t<
       contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::conditional_t<
