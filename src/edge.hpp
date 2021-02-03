@@ -1,8 +1,6 @@
 #ifndef EDGE_HPP
 #define EDGE_HPP
 
-#include <impl/graph_traits.hpp>
-
 #include <climits>
 #include <functional>
 #include <utility>
