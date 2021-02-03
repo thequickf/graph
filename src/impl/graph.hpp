@@ -52,7 +52,7 @@ class Graph<
           std::set<ContainerEdge>
       >
   >;
-  using GraphMap = std::conditional_t<
+  using EdgeMap = std::conditional_t<
       contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::unordered_map<Node, EdgeSet>,
       std::map<Node, EdgeSet>
@@ -116,7 +116,7 @@ public:
   }
 
 private:
-  GraphMap edges;
+  EdgeMap edges;
   NodeSet nodes;
 };
 
