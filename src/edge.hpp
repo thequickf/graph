@@ -3,6 +3,7 @@
 
 #include <impl/graph_traits.hpp>
 
+#include <climits>
 #include <functional>
 #include <utility>
 
@@ -52,7 +53,7 @@ struct hash<graph::Edge<Node, graph_impl::HashTableBasedEdge, Types...> > {
   ) const noexcept {
     const std::size_t h1 = std::hash<Node>{}(edge.from);
     const std::size_t h2 = std::hash<Node>{}(edge.to);
-    return h1 ^ (h2 << 1);
+    return h1 ^ (h2 << 1 | (h2 >> (CHAR_BIT * sizeof(h2) - 1)));
   }
 };
 
