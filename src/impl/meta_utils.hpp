@@ -7,7 +7,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace {
+namespace graph_impl {
 
 template <typename...>
 struct list;
@@ -149,10 +149,6 @@ using constructible_trait_condition =
         std::is_base_of_v<graph::NoConstructorTrait, Derived>,
         std::false_type,
         std::true_type>;
-
-}  // namespace
-
-namespace graph_impl {
 
 template<typename T, typename... Ts>
 using contains_type = contains_type_impl<std::false_type, T, Ts...>::value;

@@ -71,6 +71,10 @@ public:
     }
   }
 
+  void addNode(const Node& node) {
+    nodes.insert(node);
+  }
+
   void addEdge(const Edge& edge) {
     nodes.insert(edge.from);
     nodes.insert(edge.to);
