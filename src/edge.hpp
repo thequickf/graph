@@ -9,7 +9,7 @@ namespace graph {
 
 template<typename Node, typename... Types>
 class Edge : public Types... {
-public:
+ public:
   Edge(Node from, Node to, Types... args) :
       from(std::move(from)), to(std::move(to)), Types(std::move(args))... {}
   Edge(const Edge& other) : from(other.from), to(other.to), Types(other)... {}

@@ -8,13 +8,14 @@
 #include <queue>
 #include <set>
 #include <string>
+#include <utility>
 
 namespace {
 
 struct BFSPathPoint {
   BFSPathPoint() : point(), type(-1) {}
   BFSPathPoint(graph_tests::PointOnMap point, char type) :
-      point(point), type(type) {}
+      point(std::move(point)), type(type) {}
   graph_tests::PointOnMap point;
   char type;
 };
@@ -30,13 +31,15 @@ TYPED_TEST_SUITE_P(GraphStruct);
 
 TYPED_TEST_P(GraphStruct, IntGraphConstructability) {
   TypeParam g({1, 2, 3});
-  g.addEdge({1, 2});
-  g.addEdge({2, 3});
-  g.addEdge({3, 1});
-  g.addEdge({3, 1});
-  g.neighbors(1);
-  g.inEdges(1);
-  g.outEdges(1);
+  g.AddNode(4);
+  g.AddNode(4);
+  g.AddEdge({1, 2});
+  g.AddEdge({2, 3});
+  g.AddEdge({3, 1});
+  g.AddEdge({3, 1});
+  g.Neighbors(1);
+  g.InEdges(1);
+  g.OutEdges(1);
 }
 
 REGISTER_TYPED_TEST_SUITE_P(GraphStruct, IntGraphConstructability);
@@ -57,10 +60,10 @@ INSTANTIATE_TYPED_TEST_SUITE_P(
 
 TEST(SimpleTest, IntGraph) {
   graph::Graph<int>g({1, 2, 3});
-  g.addEdge({1, 2});
-  g.addEdge({2, 3});
-  g.addEdge({3, 1});
-  auto n1 = g.neighbors(1);
+  g.AddEdge({1, 2});
+  g.AddEdge({2, 3});
+  g.AddEdge({3, 1});
+  auto n1 = g.Neighbors(1);
   std::sort(n1.begin(), n1.end());
   EXPECT_EQ(n1.size(), 2);
   EXPECT_EQ(n1[0], 2);
@@ -69,10 +72,10 @@ TEST(SimpleTest, IntGraph) {
 
 TEST(SimpleTest, DirectedIntGraph) {
   graph::Graph<int, graph::Directed>g({1, 2, 3});
-  g.addEdge({1, 2});
-  g.addEdge({2, 3});
-  g.addEdge({3, 1});
-  auto n1 = g.neighbors(1);
+  g.AddEdge({1, 2});
+  g.AddEdge({2, 3});
+  g.AddEdge({3, 1});
+  auto n1 = g.Neighbors(1);
   std::sort(n1.begin(), n1.end());
   EXPECT_EQ(n1.size(), 1);
   EXPECT_EQ(n1[0], 2);
@@ -88,7 +91,7 @@ TEST_P(PathFindingOnMap, ManualBFS) {
     const PointOnMap u = q.front();
     q.pop();
     visited.insert(u);
-    for (const PointOnMap& v : graph.neighbors(u)) {
+    for (const PointOnMap& v : graph_.Neighbors(u)) {
       if (visited.find(v) == visited.end()) {
         q.push(v);
         if (u.i < v.i)
@@ -106,7 +109,7 @@ TEST_P(PathFindingOnMap, ManualBFS) {
   if (visited.find(start) != visited.end()) {
     PointOnMap u = start;
     do {
-      answer.push_back(bfs_path[u].type);
+      answer_.push_back(bfs_path[u].type);
       u = bfs_path[u].point;
     } while (u != finish);
   }

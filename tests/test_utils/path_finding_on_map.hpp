@@ -137,7 +137,7 @@ const PathFindingOnMapCase path_finding_on_map_cases[] ={
 
 class PathFindingOnMap :
     public testing::TestWithParam<PathFindingOnMapCase> {
-public:
+ public:
   void SetUp() override {
     size_t start_cnt = 0;
     size_t finish_cnt = 0;
@@ -154,11 +154,11 @@ public:
         if (map[i][j] == '#')
           continue;
         const PointOnMap u = {i, j, map[i][j]};
-        graph.addNode(u);
+        graph_.AddNode(u);
         const std::vector<PointOnMap> potential_neighbors = GetNeighbors(u);
         for (const PointOnMap& potential_neighbor : potential_neighbors)
           if (potential_neighbor.IsValid())
-            graph.addEdge({u, potential_neighbor});
+            graph_.AddEdge({u, potential_neighbor});
       }
     }
     ASSERT_EQ(start_cnt, 1);
@@ -166,7 +166,7 @@ public:
   }
 
   void TearDown() override {
-    ASSERT_EQ(GetShortestLength(), answer.size());
+    ASSERT_EQ(GetShortestLength(), answer_.size());
     if (GetShortestLength() == 0)
       return;
 
@@ -176,12 +176,12 @@ public:
 
     size_t step = 0;
     PointOnMap current = start;
-    for (; current != finish && step < answer.size(); step++) {
+    for (; current != finish && step < answer_.size(); step++) {
       size_t& i = current.i;
       size_t& j = current.j;
       ASSERT_TRUE(i >= 0 && i < map.size() && j >= 0 && i < map[i].size());
       ASSERT_NE(map[i][j], '#');
-      switch (answer[step]) {
+      switch (answer_[step]) {
         case 'L':
           j--;
           break;
@@ -199,11 +199,11 @@ public:
           break;
       }
     }
-    ASSERT_EQ(step, answer.size());
+    ASSERT_EQ(step, answer_.size());
     ASSERT_EQ(current, finish);
   }
 
-protected:
+ protected:
   const std::vector<std::string>& GetMap() const {
     return GetParam().map;
   }
@@ -228,7 +228,7 @@ protected:
     return {};
   }
 
-  PointOnMap GetUp(const PointOnMap& u) {
+  PointOnMap GetUp(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.i > 0)
       if (map[u.i - 1][u.j] != '#')
@@ -236,7 +236,7 @@ protected:
     return {};
   }
 
-  PointOnMap GetRight(const PointOnMap& u) {
+  PointOnMap GetRight(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.j < map[u.i].size() - 1)
       if (map[u.i][u.j + 1] != '#')
@@ -244,7 +244,7 @@ protected:
     return {};
   }
 
-  PointOnMap GetDown(const PointOnMap& u) {
+  PointOnMap GetDown(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.i < map.size() - 1)
       if (map[u.i + 1][u.j] != '#')
@@ -252,14 +252,18 @@ protected:
     return {};
   }
 
+  std::vector<PointOnMap> GetNeighbors(const PointOnMap& u) const {
+    return { GetLeft(u), GetUp(u), GetRight(u), GetDown(u) };
+  }
+
   static bool IsValidType(char type) {
     return type == 'S' || type == 'F' || type == '.' || type == '#';
   }
 
-  std::string answer;
-  graph::Graph<PointOnMap> graph;
+  std::string answer_;
+  graph::Graph<PointOnMap> graph_;
 
-private:
+ private:
   PointOnMap FindPointOnMap(char type) const {
     const std::vector<std::string>& map = GetMap();
     for (size_t i = 0; i < map.size(); i++)
@@ -267,10 +271,6 @@ private:
         if (map[i][j] == type)
           return {i, j, map[i][j]};
     return {};
-  }
-
-  std::vector<PointOnMap> GetNeighbors(const PointOnMap& u) {
-    return { GetLeft(u), GetUp(u), GetRight(u), GetDown(u) };
   }
 };
 
