@@ -28,7 +28,7 @@ template<
         typename... ConstructibleGraphTraits,
     template<typename...> typename ConstructibleEdgeTraitList,
         typename... ConstructibleEdgeTraits>
-  requires(BaseConsistent<Node, GraphTraits...>)
+  requires(graph_meta::BaseConsistent<Node, GraphTraits...>)
 class Graph<
       Node, GraphTraitList<GraphTraits...>, EdgeTraitList<EdgeTraits...>,
       ConstructibleGraphTraitList<ConstructibleGraphTraits...>,
@@ -36,25 +36,25 @@ class Graph<
     public GraphTraits... {
   using Edge = graph::Edge<Node, EdgeTraits...>;
   using EdgeSet = std::conditional_t<
-      contains_type_v<graph::HashTableBased, GraphTraits...>,
+      graph_meta::contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::conditional_t<
-          contains_type_v<graph::Multigraph, GraphTraits...>,
+          graph_meta::contains_type_v<graph::Multigraph, GraphTraits...>,
           std::unordered_multiset<Edge>,
           std::unordered_set<Edge>
       >,
       std::conditional_t<
-          contains_type_v<graph::Multigraph, GraphTraits...>,
+          graph_meta::contains_type_v<graph::Multigraph, GraphTraits...>,
           std::multiset<Edge>,
           std::set<Edge>
       >
   >;
   using EdgeMap = std::conditional_t<
-      contains_type_v<graph::HashTableBased, GraphTraits...>,
+      graph_meta::contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::unordered_map<Node, EdgeSet>,
       std::map<Node, EdgeSet>
   >;
   using NodeSet = std::conditional_t<
-      contains_type_v<graph::HashTableBased, GraphTraits...>,
+      graph_meta::contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::unordered_set<Node>,
       std::set<Node>
   >;
@@ -65,10 +65,14 @@ public:
         ConstructibleGraphTraits... graph_traits) :
       nodes(std::move(node_list)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
-    if (contains_type_v<Net<Node>, GraphTraits...>) {
+    if (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
       nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
       nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
     }
+  }
+
+  void addNode(const Node& node) {
+    nodes.insert(node);
   }
 
   void addEdge(const Edge& edge) {
@@ -76,7 +80,7 @@ public:
     nodes.insert(edge.to);
     edges[edge.from].insert(edge);
     edges[edge.to].insert(edge);
-    if (!contains_type_v<graph::Directed, GraphTraits...>) {
+    if (!graph_meta::contains_type_v<graph::Directed, GraphTraits...>) {
       edges[edge.from].insert(graph::reversed(edge));
       edges[edge.to].insert(graph::reversed(edge));
     }

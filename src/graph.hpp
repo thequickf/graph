@@ -9,13 +9,13 @@
 namespace graph {
 
 template<typename Node, typename... Traits>
-  requires (graph_impl::Trait<Traits> && ...)
+  requires (graph_meta::Trait<Traits> && ...)
 using Graph = graph_impl::Graph<
     Node,
-    graph_impl::build_graph_traits<Node, Traits...>,
-    graph_impl::build_edge_traits<Node, Traits...>,
-    graph_impl::constructible_graph_traits<Node, Traits...>,
-    graph_impl::constructible_edge_traits<Node, Traits...>
+    graph_meta::build_graph_traits<Node, Traits...>,
+    graph_meta::build_edge_traits<Node, Traits...>,
+    graph_meta::constructible_graph_traits<Node, Traits...>,
+    graph_meta::constructible_edge_traits<Node, Traits...>
 >;
 
 }  // graph
