@@ -7,7 +7,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace graph_impl {
+namespace graph_meta {
 
 template <typename...>
 struct list;
@@ -207,6 +207,6 @@ concept BaseConsistent =
     HashBaseConsistent<Node, GraphTraits...> ||
     RBTreeBaseConsistent<Node, GraphTraits...>;
 
-}  // graph_impl
+}  // graph_meta
 
 #endif  // IMPL_UTILS_HPP
