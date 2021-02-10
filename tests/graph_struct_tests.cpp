@@ -23,7 +23,40 @@ struct BFSPathPoint {
 
 namespace graph_tests {
 
-TEST(GraphStruct, SimpleIntGraph) {
+template <typename T>
+class GraphStruct : public ::testing::Test {};
+
+TYPED_TEST_SUITE_P(GraphStruct);
+
+TYPED_TEST_P(GraphStruct, IntGraphConstructability) {
+  TypeParam g({1, 2, 3});
+  g.addEdge({1, 2});
+  g.addEdge({2, 3});
+  g.addEdge({3, 1});
+  g.addEdge({3, 1});
+  g.neighbors(1);
+  g.inEdges(1);
+  g.outEdges(1);
+}
+
+REGISTER_TYPED_TEST_SUITE_P(GraphStruct, IntGraphConstructability);
+
+using SimpleIntGraphTypes = testing::Types<
+    graph::Graph<int>,
+    graph::Graph<int, graph::HashTableBased>,
+    graph::Graph<int, graph::Directed>,
+    graph::Graph<int, graph::HashTableBased, graph::Directed>,
+    graph::Graph<int, graph::HashTableBased, graph::Multigraph>,
+    graph::Graph<int, graph::Multigraph, graph::Directed>,
+    graph::Graph<
+        int, graph::HashTableBased, graph::Multigraph, graph::Directed>
+>;
+
+INSTANTIATE_TYPED_TEST_SUITE_P(
+    Constructability, GraphStruct, SimpleIntGraphTypes);
+
+
+TEST(SimpleTest, IntGraph) {
   graph::Graph<int>g({1, 2, 3});
   g.addEdge({1, 2});
   g.addEdge({2, 3});
@@ -35,7 +68,7 @@ TEST(GraphStruct, SimpleIntGraph) {
   EXPECT_EQ(n1[1], 3);
 }
 
-TEST(GraphStruct, DirectedIntGraph) {
+TEST(SimpleTest, DirectedIntGraph) {
   graph::Graph<int, graph::Directed>g({1, 2, 3});
   g.addEdge({1, 2});
   g.addEdge({2, 3});
