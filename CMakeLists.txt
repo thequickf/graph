@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(CMAKE_CXX_STANDARD 20)
 project(graph)
 
-option(BUILD_TESTS "Build graph tests." TRUE)
+option(BUILD_TESTS "Build graph tests." ON)
 
 ADD_SUBDIRECTORY(src)
 

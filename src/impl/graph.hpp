@@ -59,55 +59,55 @@ class Graph<
       std::set<Node>
   >;
 
-public:
+ public:
   Graph() = default;
-  Graph(std::initializer_list<Node> node_list,
+  Graph(std::initializer_list<Node> nodes,
         ConstructibleGraphTraits... graph_traits) :
-      nodes(std::move(node_list)),
+      nodes_(std::move(nodes)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
     if (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
-      nodes.insert(reinterpret_cast<Net<Node>*>(this)->source);
-      nodes.insert(reinterpret_cast<Net<Node>*>(this)->sink);
+      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->source);
+      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->sink);
     }
   }
 
-  void addNode(const Node& node) {
-    nodes.insert(node);
+  void AddNode(const Node& node) {
+    nodes_.insert(node);
   }
 
-  void addEdge(const Edge& edge) {
-    nodes.insert(edge.from);
-    nodes.insert(edge.to);
-    edges[edge.from].insert(edge);
-    edges[edge.to].insert(edge);
+  void AddEdge(const Edge& edge) {
+    nodes_.insert(edge.from);
+    nodes_.insert(edge.to);
+    edges_[edge.from].insert(edge);
+    edges_[edge.to].insert(edge);
     if (!graph_meta::contains_type_v<graph::Directed, GraphTraits...>) {
-      edges[edge.from].insert(graph::reversed(edge));
-      edges[edge.to].insert(graph::reversed(edge));
+      edges_[edge.from].insert(graph::reversed(edge));
+      edges_[edge.to].insert(graph::reversed(edge));
     }
   }
 
-  std::vector<Edge> inEdges(const Node& node) {
-    nodes.insert(node);
+  std::vector<Edge> InEdges(const Node& node) {
+    nodes_.insert(node);
     std::vector<Edge> res;
-    for (const Edge& edge : edges[node])
+    for (const Edge& edge : edges_[node])
       if (edge.to == node)
         res.push_back(edge);
     return res;
   }
 
-  std::vector<Edge> outEdges(const Node& node) {
-    nodes.insert(node);
+  std::vector<Edge> OutEdges(const Node& node) {
+    nodes_.insert(node);
     std::vector<Edge> res;
-    for (const Edge& edge : edges[node])
+    for (const Edge& edge : edges_[node])
       if (edge.from == node)
         res.push_back(edge);
     return res;
   }
 
-  std::vector<Node> neighbors(const Node& node) {
-    nodes.insert(node);
+  std::vector<Node> Neighbors(const Node& node) {
+    nodes_.insert(node);
     NodeSet res_set;
-    for (const Edge& edge : outEdges(node))
+    for (const Edge& edge : OutEdges(node))
       res_set.insert(edge.to);
     std::vector<Node> res;
     res.reserve(res_set.size());
@@ -116,9 +116,9 @@ public:
     return res;
   }
 
-private:
-  EdgeMap edges;
-  NodeSet nodes;
+ private:
+  EdgeMap edges_;
+  NodeSet nodes_;
 };
 
 }  // graph_impl

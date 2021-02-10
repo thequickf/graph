@@ -4,42 +4,42 @@
 namespace graph {
 
 class GraphTrait {
-protected:
+ protected:
   GraphTrait() = default;
 };
 
 class EdgeTrait {
-protected:
+ protected:
   EdgeTrait() = default;
 };
 
 class NoConstructorTrait {
-protected:
+ protected:
   NoConstructorTrait() = default;
 };
 
 class Net : public GraphTrait {
-protected:
+ protected:
   Net() = default;
 };
 
 class Directed : public GraphTrait, NoConstructorTrait {
-protected:
+ protected:
   Directed() = default;
 };
 
 class Multigraph : public GraphTrait, NoConstructorTrait {
-protected:
+ protected:
   Multigraph() = default;
 };
 
 class HashTableBased : public GraphTrait, NoConstructorTrait {
-protected:
+ protected:
   HashTableBased() = default;
 };
 
 class Weighted : public EdgeTrait {
-public:
+ public:
   Weighted(unsigned weight) : weight(weight) {}
   const unsigned weight;
 };
