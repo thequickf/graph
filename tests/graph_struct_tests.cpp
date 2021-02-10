@@ -55,7 +55,6 @@ using SimpleIntGraphTypes = testing::Types<
 INSTANTIATE_TYPED_TEST_SUITE_P(
     Constructability, GraphStruct, SimpleIntGraphTypes);
 
-
 TEST(SimpleTest, IntGraph) {
   graph::Graph<int>g({1, 2, 3});
   g.addEdge({1, 2});
