@@ -34,9 +34,9 @@ TYPED_TEST_P(GraphStruct, IntGraphConstructability) {
   g.AddNode(4);
   g.AddNode(4);
   g.AddEdge({1, 2});
-  g.AddEdge({2, 3});
+  g.AddEdge(2, 3);
   g.AddEdge({3, 1});
-  g.AddEdge({3, 1});
+  g.AddEdge(3, 1);
   g.Neighbors(1);
   g.InEdges(1);
   g.OutEdges(1);

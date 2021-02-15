@@ -177,12 +177,18 @@ using constructible_edge_traits =
         build_edge_traits<Node, Traits...> >;
 
 template<typename T>
-concept Trait =
-    std::is_base_of_v<graph::GraphTrait, T> ||
-    std::is_base_of_v<graph::EdgeTrait, T>;
+concept EdgeTrait = std::is_base_of_v<graph::EdgeTrait, T>;
 
 template<typename T>
-concept Hashable = requires(T a, T b) {
+concept GraphTrait = std::is_base_of_v<graph::GraphTrait, T>;
+
+template<typename T>
+concept Trait = GraphTrait<T> || EdgeTrait<T>;
+
+template<typename T>
+concept Hashable =
+    requires(const std::remove_reference_t<T>& a,
+             const std::remove_reference_t<T>& b)  {
   { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
   { a == b } -> std::convertible_to<bool>;
 };
