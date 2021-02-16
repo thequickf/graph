@@ -13,7 +13,7 @@
 namespace {
 
 struct BFSPathPoint {
-  BFSPathPoint() : point(), type(-1) {}
+  BFSPathPoint() = delete;
   BFSPathPoint(graph_tests::PointOnMap point, char type) :
       point(std::move(point)), type(type) {}
   graph_tests::PointOnMap point;
@@ -90,18 +90,20 @@ TEST_P(PathFindingOnMap, ManualBFS) {
   while (!q.empty()) {
     const PointOnMap u = q.front();
     q.pop();
+    if (visited.find(u) != visited.end())
+      continue;
     visited.insert(u);
     for (const PointOnMap& v : graph_.Neighbors(u)) {
       if (visited.find(v) == visited.end()) {
         q.push(v);
         if (u.i < v.i)
-          bfs_path[v] = {u, 'U'};
+          bfs_path.emplace(v, BFSPathPoint(u, 'U'));
         else if (u.i > v.i)
-          bfs_path[v] = {u, 'D'};
+          bfs_path.emplace(v, BFSPathPoint(u, 'D'));
         else if (u.j < v.j)
-          bfs_path[v] = {u, 'L'};
+          bfs_path.emplace(v, BFSPathPoint(u, 'L'));
         else if (u.j > v.j)
-          bfs_path[v] = {u, 'R'};
+          bfs_path.emplace(v, BFSPathPoint(u, 'R'));
       }
     }
   }
@@ -109,8 +111,8 @@ TEST_P(PathFindingOnMap, ManualBFS) {
   if (visited.find(start) != visited.end()) {
     PointOnMap u = start;
     do {
-      answer_.push_back(bfs_path[u].type);
-      u = bfs_path[u].point;
+      answer_.push_back(bfs_path.find(u)->second.type);
+      u = bfs_path.find(u)->second.point;
     } while (u != finish);
   }
 }

@@ -69,28 +69,43 @@ class Graph<Node,
         ConstructibleGraphTraits... graph_traits) :
       nodes_(std::move(nodes)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
-    if (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
+    if constexpr (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
       AddNode(reinterpret_cast<Net<Node>*>(this)->source);
       AddNode(reinterpret_cast<Net<Node>*>(this)->sink);
     }
   }
 
-  void AddNode(const Node& node) {
-    nodes_.insert(node);
+  bool AddNode(const Node& node) {
+    return nodes_.insert(node).second;
   }
 
-  void AddEdge(const EdgeType& edge) {
+  bool AddEdge(const EdgeType& edge) {
     AddNode(edge.from);
     AddNode(edge.to);
-    edges_[edge.from].insert(edge);
-    edges_[edge.to].insert(edge);
-    if (!graph_meta::contains_type_v<graph::Directed, GraphTraits...>) {
-      edges_[edge.from].insert(edge.ReversedCopy());
-      edges_[edge.to].insert(edge.ReversedCopy());
+    if constexpr (graph_meta::contains_type_v<
+                      graph::Multigraph, GraphTraits...>) {
+      edges_[edge.from].insert(edge);
+      edges_[edge.to].insert(edge);
+      if constexpr (!graph_meta::contains_type_v<
+                        graph::Directed, GraphTraits...>) {
+        edges_[edge.from].insert(edge.ReversedCopy());
+        edges_[edge.to].insert(edge.ReversedCopy());
+      }
+      return true;
+    } else {
+      bool res = edges_[edge.from].insert(edge).second;
+      if (!res) return res;
+      res |= edges_[edge.to].insert(edge).second;
+      if constexpr (!graph_meta::contains_type_v<
+                        graph::Directed, GraphTraits...>) {
+        res |= edges_[edge.from].insert(edge.ReversedCopy()).second;
+        res |= edges_[edge.to].insert(edge.ReversedCopy()).second;
+      }
+      return res;
     }
   }
 
-  void AddEdge(Node from, Node to, ConstructibleEdgeTraits... edge_traits) {
+  bool AddEdge(Node from, Node to, ConstructibleEdgeTraits... edge_traits) {
     return AddEdge({std::move(from), std::move(to), std::move(edge_traits)...});
   }
 

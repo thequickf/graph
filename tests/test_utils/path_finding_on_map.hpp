@@ -1,30 +1,30 @@
-#ifndef TEST_UTILS_PATH_FINDING_ON_MAP
-#define TEST_UTILS_PATH_FINDING_ON_MAP
+#ifndef TEST_UTILS_PATH_FINDING_ON_MAP_HPP
+#define TEST_UTILS_PATH_FINDING_ON_MAP_HPP
 
 #include <gtest/gtest.h>
 
+#include <optional>
 #include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace graph_tests {
 
 struct PointOnMap {
-  PointOnMap() : i(-1), j(-1), type(-1) {}
+  PointOnMap() = delete;
   PointOnMap(size_t i, size_t j, char type) : i(i), j(j), type(type) {}
-  friend bool operator==(const PointOnMap& lhp, const PointOnMap& rhp) {
-    return lhp.i == rhp.i && lhp.j == rhp.j;
-  }
-  friend bool operator<(const PointOnMap& lhp, const PointOnMap& rhp) {
-    if (lhp.i != rhp.i)
-      return lhp.i < rhp.i;
-    return lhp.j < rhp.j;
-  }
-  bool IsValid() const {
-    return *this != PointOnMap();
-  }
   size_t i, j;
   char type;
 };
+
+bool operator==(const PointOnMap& lhp, const PointOnMap& rhp) {
+  return std::tie(lhp.i, lhp.j) == std::tie(rhp.i, rhp.j);
+}
+
+bool operator<(const PointOnMap& lhp, const PointOnMap& rhp) {
+  return std::tie(lhp.i, lhp.j) < std::tie(rhp.i, rhp.j);
+}
 
 struct PathFindingOnMapCase {
   PathFindingOnMapCase(const std::vector<std::string>& map,
@@ -34,7 +34,7 @@ struct PathFindingOnMapCase {
   const size_t shortest_length;
 };
 
-const PathFindingOnMapCase path_finding_on_map_cases[] ={
+const PathFindingOnMapCase path_finding_on_map_cases[] = {
   {
     {
       "#####",
@@ -132,6 +132,78 @@ const PathFindingOnMapCase path_finding_on_map_cases[] ={
       "S#........#.....#....#.......#..#....#....#......."
     },
     64
+  },
+  {
+    {
+      "S..#...#...#...#...#...#...#...#...#...#...#...#...",
+      "##.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "...#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".##..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "....#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "####..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".....#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".####..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "......#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "######..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".......#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".######..#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "........#..#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      "########..#..#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".........#..#..#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.#.",
+      ".########..#..#..#..#..#..#..#.#.#.#.#.#.#.#.#.#.#.",
+      "..........#..#..#..#..#..#..#..#.#.#.#.#.#.#.#.#.#.",
+      "##########..#..#..#..#..#..#..#..#.#.#.#.#.#.#.#.#.",
+      "...........#..#..#..#..#..#..#..#..#.#.#.#.#.#.#.#.",
+      ".##########..#..#..#..#..#..#..#..#..#.#.#.#.#.#.#.",
+      "............#..#..#..#..#..#..#..#..#..#.#.#.#.#.#.",
+      "############..#..#..#..#..#..#..#..#..#..#.#.#.#.#.",
+      ".............#..#..#..#..#..#..#..#..#..#..#.#.#.#.",
+      ".############..#..#..#..#..#..#..#..#..#..#..#.#.#.",
+      "..............#..#..#..#..#..#..#..#..#..#..#..#.#.",
+      "##############..#..#..#..#..#..#..#..#..#..#..#..#.",
+      "...............#..#..#..#..#..#..#..#..#..#..#..#..",
+      ".##############..#..#..#..#..#..#..#..#..#..#..#..#",
+      "................#..#..#..#..#..#..#..#..#..#..#..#.",
+      "################..#..#..#..#..#..#..#..#..#..#..#..",
+      ".................#..#..#..#..#..#..#..#..#..#..#...",
+      ".################..#..#..#..#..#..#..#..#..#..#..#.",
+      "..................#..#..#..#..#..#..#..#..#..#..#..",
+      "##################..#..#..#..#..#..#..#..#..#..#..#",
+      "...................#..#..#..#..#..#..#..#..#..#..#.",
+      ".##################..#..#..#..#..#..#..#..#..#..#..",
+      "....................#..#..#..#..#..#..#..#..#..#...",
+      "####################..#..#..#..#..#..#..#..#..#..#.",
+      ".....................#..#..#..#..#..#..#..#..#..#..",
+      ".####################..#..#..#..#..#..#..#..#..#..#",
+      "......................#..#..#..#..#..#..#..#..#..#.",
+      "######################..#..#..#..#..#..#..#..#..#..",
+      ".......................#..#..#..#..#..#..#..#..#...",
+      ".######################..#..#..#..#..#..#..#..#..#.",
+      "........................#..#..#..#..#..#..#..#..#..",
+      "########################..#..#..#..#..#..#..#..#..#",
+      ".........................#..#..#..#..#..#..#..#..#.",
+      ".########################..#..#..#..#..#..#..#..#..",
+      "..........................#.....#.....#.....#......",
+      "##################################################.",
+      "F.................................................."
+    },
+    1518
+  },
+  {
+    {
+      "S..........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "...........",
+      "..........F"
+    },
+    20
   }
 };
 
@@ -141,10 +213,11 @@ class PathFindingOnMap :
   void SetUp() override {
     size_t start_cnt = 0;
     size_t finish_cnt = 0;
-    const std::vector<std::string>& map = GetParam().map;
+    const std::vector<std::string>& map = GetMap();
     for (size_t i = 0; i < map.size(); i++) {
-      if (i != 0)
-        ASSERT_EQ(map[i].size(), map[i-1].size());
+      if (i != 0) {
+        ASSERT_EQ(map[i].size(), map[i - 1].size());
+      }
       for (size_t j = 0; j < map[i].size(); j++) {
         ASSERT_TRUE(IsValidType(map[i][j]));
         if (map[i][j] == 'S')
@@ -155,10 +228,8 @@ class PathFindingOnMap :
           continue;
         const PointOnMap u = {i, j, map[i][j]};
         graph_.AddNode(u);
-        const std::vector<PointOnMap> potential_neighbors = GetNeighbors(u);
-        for (const PointOnMap& potential_neighbor : potential_neighbors)
-          if (potential_neighbor.IsValid())
-            graph_.AddEdge({u, potential_neighbor});
+        for (PointOnMap neighbor : GetNeighbors(u))
+          graph_.AddEdge({u, std::move(neighbor)});
       }
     }
     ASSERT_EQ(start_cnt, 1);
@@ -170,29 +241,37 @@ class PathFindingOnMap :
     if (GetShortestLength() == 0)
       return;
 
-    const std::vector<std::string>& map = GetMap();
     const PointOnMap start = GetStart();
     const PointOnMap finish = GetFinish();
 
     size_t step = 0;
     PointOnMap current = start;
     for (; current != finish && step < answer_.size(); step++) {
-      size_t& i = current.i;
-      size_t& j = current.j;
-      ASSERT_TRUE(i >= 0 && i < map.size() && j >= 0 && i < map[i].size());
-      ASSERT_NE(map[i][j], '#');
+      ASSERT_NE(current.type, '#');
       switch (answer_[step]) {
         case 'L':
-          j--;
+          if (auto next = GetLeft(current))
+            current = *next;
+          else
+            ASSERT_TRUE(false);
           break;
         case 'U':
-          i--;
+          if (auto next = GetUp(current))
+            current = *next;
+          else
+            ASSERT_TRUE(false);
           break;
         case 'R':
-          j++;
+          if (auto next = GetRight(current))
+            current = *next;
+          else
+            ASSERT_TRUE(false);
           break;
         case 'D':
-          i++;
+          if (auto next = GetDown(current))
+            current = *next;
+          else
+            ASSERT_TRUE(false);
           break;
         default:
           ASSERT_TRUE(false);
@@ -213,47 +292,52 @@ class PathFindingOnMap :
   }
 
   PointOnMap GetStart() const {
-    return FindPointOnMap('S');
+    return *FindPointOnMap('S');
   }
 
   PointOnMap GetFinish() const {
-    return FindPointOnMap('F');
+    return *FindPointOnMap('F');
   }
 
-  PointOnMap GetLeft(const PointOnMap& u) const {
+  std::optional<PointOnMap> GetLeft(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.j > 0)
       if (map[u.i][u.j - 1] != '#')
-        return {u.i, u.j - 1, map[u.i][u.j - 1]};
+        return PointOnMap(u.i, u.j - 1, map[u.i][u.j - 1]);
     return {};
   }
 
-  PointOnMap GetUp(const PointOnMap& u) const {
+  std::optional<PointOnMap> GetUp(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.i > 0)
       if (map[u.i - 1][u.j] != '#')
-        return {u.i - 1, u.j, map[u.i - 1][u.j]};
+        return PointOnMap(u.i - 1, u.j, map[u.i - 1][u.j]);
     return {};
   }
 
-  PointOnMap GetRight(const PointOnMap& u) const {
+  std::optional<PointOnMap> GetRight(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.j < map[u.i].size() - 1)
       if (map[u.i][u.j + 1] != '#')
-        return {u.i, u.j + 1, map[u.i][u.j + 1]};
+        return PointOnMap(u.i, u.j + 1, map[u.i][u.j + 1]);
     return {};
   }
 
-  PointOnMap GetDown(const PointOnMap& u) const {
+  std::optional<PointOnMap> GetDown(const PointOnMap& u) const {
     const std::vector<std::string>& map = GetMap();
     if (u.i < map.size() - 1)
       if (map[u.i + 1][u.j] != '#')
-        return {u.i + 1, u.j, map[u.i + 1][u.j]};
+        return PointOnMap(u.i + 1, u.j, map[u.i + 1][u.j]);
     return {};
   }
 
   std::vector<PointOnMap> GetNeighbors(const PointOnMap& u) const {
-    return { GetLeft(u), GetUp(u), GetRight(u), GetDown(u) };
+    std::vector<PointOnMap> res;
+    for (auto&& neigbor : { GetLeft(u), GetUp(u), GetRight(u), GetDown(u) }) {
+      if (neigbor)
+        res.emplace_back(std::move(*neigbor));
+    }
+    return res;
   }
 
   static bool IsValidType(char type) {
@@ -264,12 +348,12 @@ class PathFindingOnMap :
   graph::Graph<PointOnMap> graph_;
 
  private:
-  PointOnMap FindPointOnMap(char type) const {
+  std::optional<PointOnMap> FindPointOnMap(char type) const {
     const std::vector<std::string>& map = GetMap();
     for (size_t i = 0; i < map.size(); i++)
       for (size_t j = 0; j < map[i].size(); j++)
         if (map[i][j] == type)
-          return {i, j, map[i][j]};
+          return PointOnMap(i, j, map[i][j]);
     return {};
   }
 };
@@ -280,4 +364,4 @@ INSTANTIATE_TEST_SUITE_P(PathFidning,
 
 }  // graph_tests
 
-#endif  // TEST_UTILS_PATH_FINDING_ON_MAP
+#endif  // TEST_UTILS_PATH_FINDING_ON_MAP_HPP
