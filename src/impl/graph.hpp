@@ -26,7 +26,7 @@ template<typename Node,
          typename... GraphTraits,
          typename... EdgeTraits,
          typename... ConstructibleGraphTraits,
-         typename... ConstructibleEdgeTraits >
+         typename... ConstructibleEdgeTraits>
   requires (graph_meta::BaseConsistent<Node, GraphTraits...>)
 class Graph<Node,
             graph_meta::list<GraphTraits...>,
@@ -34,9 +34,11 @@ class Graph<Node,
             graph_meta::list<ConstructibleGraphTraits...>,
             graph_meta::list<ConstructibleEdgeTraits...> > :
     public GraphTraits... {
+ public:
   using EdgeType = Edge<Node,
                         graph_meta::list<EdgeTraits...>,
                         graph_meta::list<ConstructibleEdgeTraits...> >;
+ private:
   using EdgeSet = std::conditional_t<
       graph_meta::contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::conditional_t<
@@ -68,8 +70,8 @@ class Graph<Node,
       nodes_(std::move(nodes)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
     if (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
-      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->source);
-      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->sink);
+      AddNode(reinterpret_cast<Net<Node>*>(this)->source);
+      AddNode(reinterpret_cast<Net<Node>*>(this)->sink);
     }
   }
 
@@ -78,8 +80,8 @@ class Graph<Node,
   }
 
   void AddEdge(const EdgeType& edge) {
-    nodes_.insert(edge.from);
-    nodes_.insert(edge.to);
+    AddNode(edge.from);
+    AddNode(edge.to);
     edges_[edge.from].insert(edge);
     edges_[edge.to].insert(edge);
     if (!graph_meta::contains_type_v<graph::Directed, GraphTraits...>) {
@@ -93,7 +95,7 @@ class Graph<Node,
   }
 
   std::vector<EdgeType> InEdges(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     std::vector<EdgeType> res;
     for (const EdgeType& edge : edges_[node])
       if (edge.to == node)
@@ -102,7 +104,7 @@ class Graph<Node,
   }
 
   std::vector<EdgeType> OutEdges(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     std::vector<EdgeType> res;
     for (const EdgeType& edge : edges_[node])
       if (edge.from == node)
@@ -111,7 +113,7 @@ class Graph<Node,
   }
 
   std::vector<Node> Neighbors(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     NodeSet res_set;
     for (const EdgeType& edge : OutEdges(node))
       res_set.insert(edge.to);
