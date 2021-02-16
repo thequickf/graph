@@ -26,7 +26,7 @@ template<typename Node,
          typename... GraphTraits,
          typename... EdgeTraits,
          typename... ConstructibleGraphTraits,
-         typename... ConstructibleEdgeTraits >
+         typename... ConstructibleEdgeTraits>
   requires (graph_meta::BaseConsistent<Node, GraphTraits...>)
 class Graph<Node,
             graph_meta::list<GraphTraits...>,
@@ -34,9 +34,11 @@ class Graph<Node,
             graph_meta::list<ConstructibleGraphTraits...>,
             graph_meta::list<ConstructibleEdgeTraits...> > :
     public GraphTraits... {
+ public:
   using EdgeType = Edge<Node,
                         graph_meta::list<EdgeTraits...>,
                         graph_meta::list<ConstructibleEdgeTraits...> >;
+ private:
   using EdgeSet = std::conditional_t<
       graph_meta::contains_type_v<graph::HashTableBased, GraphTraits...>,
       std::conditional_t<
@@ -67,33 +69,48 @@ class Graph<Node,
         ConstructibleGraphTraits... graph_traits) :
       nodes_(std::move(nodes)),
       ConstructibleGraphTraits(std::move(graph_traits))... {
-    if (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
-      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->source);
-      nodes_.insert(reinterpret_cast<Net<Node>*>(this)->sink);
+    if constexpr (graph_meta::contains_type_v<Net<Node>, GraphTraits...>) {
+      AddNode(reinterpret_cast<Net<Node>*>(this)->source);
+      AddNode(reinterpret_cast<Net<Node>*>(this)->sink);
     }
   }
 
-  void AddNode(const Node& node) {
-    nodes_.insert(node);
+  bool AddNode(const Node& node) {
+    return nodes_.insert(node).second;
   }
 
-  void AddEdge(const EdgeType& edge) {
-    nodes_.insert(edge.from);
-    nodes_.insert(edge.to);
-    edges_[edge.from].insert(edge);
-    edges_[edge.to].insert(edge);
-    if (!graph_meta::contains_type_v<graph::Directed, GraphTraits...>) {
-      edges_[edge.from].insert(edge.ReversedCopy());
-      edges_[edge.to].insert(edge.ReversedCopy());
+  bool AddEdge(const EdgeType& edge) {
+    AddNode(edge.from);
+    AddNode(edge.to);
+    if constexpr (graph_meta::contains_type_v<
+                      graph::Multigraph, GraphTraits...>) {
+      edges_[edge.from].insert(edge);
+      edges_[edge.to].insert(edge);
+      if constexpr (!graph_meta::contains_type_v<
+                        graph::Directed, GraphTraits...>) {
+        edges_[edge.from].insert(edge.ReversedCopy());
+        edges_[edge.to].insert(edge.ReversedCopy());
+      }
+      return true;
+    } else {
+      bool res = edges_[edge.from].insert(edge).second;
+      if (!res) return res;
+      res |= edges_[edge.to].insert(edge).second;
+      if constexpr (!graph_meta::contains_type_v<
+                        graph::Directed, GraphTraits...>) {
+        res |= edges_[edge.from].insert(edge.ReversedCopy()).second;
+        res |= edges_[edge.to].insert(edge.ReversedCopy()).second;
+      }
+      return res;
     }
   }
 
-  void AddEdge(Node from, Node to, ConstructibleEdgeTraits... edge_traits) {
+  bool AddEdge(Node from, Node to, ConstructibleEdgeTraits... edge_traits) {
     return AddEdge({std::move(from), std::move(to), std::move(edge_traits)...});
   }
 
   std::vector<EdgeType> InEdges(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     std::vector<EdgeType> res;
     for (const EdgeType& edge : edges_[node])
       if (edge.to == node)
@@ -102,7 +119,7 @@ class Graph<Node,
   }
 
   std::vector<EdgeType> OutEdges(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     std::vector<EdgeType> res;
     for (const EdgeType& edge : edges_[node])
       if (edge.from == node)
@@ -111,7 +128,7 @@ class Graph<Node,
   }
 
   std::vector<Node> Neighbors(const Node& node) {
-    nodes_.insert(node);
+    AddNode(node);
     NodeSet res_set;
     for (const EdgeType& edge : OutEdges(node))
       res_set.insert(edge.to);
