@@ -12,14 +12,14 @@
 
 namespace graph_utils {
 
-std::size_t CombineHash(std::size_t left, std::size_t right) {
+inline std::size_t CombineHash(std::size_t left, std::size_t right) {
   return left ^ (right << 1 | (right >> (CHAR_BIT * sizeof(right) - 1)));
 }
 
 template<typename Type, typename... Traits>
   requires (graph_meta::CorrectDSUTraits<Traits...> &&
             graph_meta::BaseConsistent<Type, Traits...>)
-class DSU {
+class Dsu {
   template <typename Key, typename Value>
   using Map = std::conditional_t<
       graph_meta::contains_type_v<graph::HashTableBased, Traits...>,
@@ -28,7 +28,7 @@ class DSU {
   >;
 
  public:
-  DSU(const std::initializer_list<Type>& sets) {
+  Dsu(const std::initializer_list<Type>& sets) {
     for (const Type& set : sets) {
       Add(set);
     }
@@ -60,13 +60,14 @@ class DSU {
         std::swap(u_rep, v_rep);
       parent_.find(v_rep)->second = u_rep;
       u_rep_size_it->second += v_rep_size_it->second;
+      return true;
     }
-    return true;
+    return false;
   }
 
   std::optional<size_t> Size(const Type& u) {
     if (auto u_rep = Find(u))
-      return size_.find(u_rep)->second;
+      return size_.find(*u_rep)->second;
     return {};
   }
 

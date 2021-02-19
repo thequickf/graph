@@ -1,4 +1,4 @@
-set(TEST_SOURCES graph_struct_tests.cpp)
+set(TEST_SOURCES graph_struct_tests.cpp utils_tests.cpp)
 add_executable(graph_tests ${TEST_SOURCES})
 target_include_directories(graph_tests PRIVATE .)
 target_link_libraries(graph_tests gtest gtest_main ${PROJECT_NAME})
