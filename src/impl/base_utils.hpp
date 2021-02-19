@@ -56,18 +56,17 @@ class DSU {
     if (!TypeEqual(u_rep, v_rep)) {
       auto u_rep_size_it = size_.find(u_rep);
       auto v_rep_size_it = size_.find(v_rep);
-      if (u_rep_size_it->second < v_rep_size_it->second) {
+      if (u_rep_size_it->second < v_rep_size_it->second)
         std::swap(u_rep, v_rep);
-        parent_.find(v_rep)->second = u_rep;
-        u_rep_size_it->second += v_rep_size_it->second;
-      }
+      parent_.find(v_rep)->second = u_rep;
+      u_rep_size_it->second += v_rep_size_it->second;
     }
     return true;
   }
 
   std::optional<size_t> Size(const Type& u) {
     if (auto u_rep = Find(u))
-      return size_.find(u)->second;
+      return size_.find(u_rep)->second;
     return {};
   }
 
