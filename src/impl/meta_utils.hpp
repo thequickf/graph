@@ -145,10 +145,7 @@ using edge_trait_condition = std::is_base_of<graph::EdgeTrait, Derived>;
 
 template<class Derived>
 using constructible_trait_condition =
-    std::conditional_t<
-        std::is_base_of_v<graph::NoConstructorTrait, Derived>,
-        std::false_type,
-        std::true_type>;
+    std::negation<std::is_base_of<graph::NoConstructorTrait, Derived> >;
 
 template<typename T, typename... Ts>
 using contains_type = contains_type_impl<std::false_type, T, Ts...>::value;
@@ -212,6 +209,11 @@ template<typename Node, typename... GraphTraits>
 concept BaseConsistent =
     HashBaseConsistent<Node, GraphTraits...> ||
     RBTreeBaseConsistent<Node, GraphTraits...>;
+
+template<typename... Traits>
+concept CorrectDSUTraits =
+    sizeof...(Traits) == 0 ||
+    sizeof...(Traits) == 1 && contains_type_v<graph::HashTableBased, Traits...>;
 
 }  // graph_meta
 

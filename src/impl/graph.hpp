@@ -80,6 +80,7 @@ class Graph<Node,
   }
 
   bool AddEdge(const EdgeType& edge) {
+    // TODO: clean up this mess
     AddNode(edge.from);
     AddNode(edge.to);
     if constexpr (graph_meta::contains_type_v<
